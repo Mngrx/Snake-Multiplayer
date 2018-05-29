@@ -1,0 +1,12 @@
+* Começar hoje
+	> Thread do servidor para imprimir o tabuleiro --OK
+	> Thread do servidor para imprimir cobra no tabuleiro --OK
+	> Fazer o tabuleiro imprimir mais de uma cobra --OK (as cobras não ficaram independentes)
+
+=======================================================================
+* Socket
+	> Fazer jogo rodar no servidor e no cliente
+		- Fazer cliente receber os comandos e enviar para o servidor
+		- Fazer o servidor receber os comandos  
+
+* Verificar a possibilidade de semáforo
