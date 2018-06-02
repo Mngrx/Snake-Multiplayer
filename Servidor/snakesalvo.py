@@ -88,7 +88,7 @@ def printGameScreen():
 			t1.start()
 			t1.join()
 		pygame.display.update()
-		#move()
+
 		
 		
 
