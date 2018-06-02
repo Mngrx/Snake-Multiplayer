@@ -68,9 +68,21 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Criação do Socket
 
 ##TODO-DAR PARA O JOGADOR A OPÇÃO DE SE CONECTAR NOVAMENTE
 
+def get_list():
+	sock.connect((HOST, PORT))
+	sock.send("get_list\n".encode('UTF-8'))
+
+	data = sock.recv(4096)
+	snakes = pickle.loads(data)
+	return snakes
+
+
+
+
 #Recebe uma lista de snakes e printa
 def printGameScreen():
 	#SOLICIDAT E RECEBER DO SERVIDOR UMA LISTA DE COBRAS ATUALIZADAS PARA PRINTAR AQUI
+	cobras = get_list()
 	while True:
 		print(threading.current_thread())
 		clock.tick(32)
@@ -85,7 +97,7 @@ def printGameScreen():
 			t1.join()
 		pygame.display.update()
 
-#PrintSnak
+#PrintSnake
 def printSnake(cb):
 	lock.acquire()
 	for i in range(0, cb.getLength()):
@@ -95,7 +107,7 @@ def printSnake(cb):
 
 #metodo que solicida conexão e recebe uma posição vazia.
 def conectation():
-	s.connect((HOST, PORT))
+	sock.connect((HOST, PORT))
 	sock.send("request\n".encode('UTF-8'))
 	decision = sock.recv(1024)
 
@@ -104,11 +116,6 @@ def conectation():
 	else:
 		position = int(decision)
 		cobra = Snake(position)
-	#enviando a cobra criada 
-	data = pikle.dumps(cobra)
-	#MANDAR UMA COBRA INICIADA EM POSITION, MANDAR A COBRA JUNTO COM UMA MENSAGEM PARA SER TRATADA LA NO SERVIDOR
-	sock.send(data;"")
-
 	sock.close()
 
 #metodo que captura o movimento da combra e envia para o servidor
@@ -148,5 +155,10 @@ def move():
 		time.sleep(0.1)
 
 		#MANDAR A COBRA ATUALIZADA PARA O SERVIDOR PARA QUE SEJA ATUALIZADA NA LISTA COM AS NOVAS POSICOES
+		sock.connect((HOST, PORT))
+		data = pickle.dumps(cobra)
+		sock.send(data+"") #mandar a cobra e uma mensagem indicando a atualização da cobra 
+
+		sock.close()
 
 
