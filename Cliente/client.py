@@ -54,7 +54,8 @@ s = pygame.display.set_mode((600, 600))
 pygame.display.set_caption('Snake')
 f = pygame.font.SysFont('Arial', 20)
 clock = pygame.time.Clock()
-cobra = Snake();
+cobra = ""
+cobras = []
 #cobra2 = Snake(290)
 lock = threading.Lock()
 
@@ -68,21 +69,18 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Criação do Socket
 
 ##TODO-DAR PARA O JOGADOR A OPÇÃO DE SE CONECTAR NOVAMENTE
 
-def get_list():
+def upSnakeAndGetList():
 	sock.connect((HOST, PORT))
-	sock.send("get_list\n".encode('UTF-8'))
+	data = pickle.dumps((cobra, "snake", "player1"))
+	sock.send(data) #mandar a cobra e uma mensagem indicando a atualização da cobra 
 
 	data = sock.recv(4096)
-	snakes = pickle.loads(data)
-	return snakes
-
-
-
+	sock.close()
+	cobras = pickle.loads(data)
 
 #Recebe uma lista de snakes e printa
 def printGameScreen():
 	#SOLICIDAT E RECEBER DO SERVIDOR UMA LISTA DE COBRAS ATUALIZADAS PARA PRINTAR AQUI
-	cobras = get_list()
 	while True:
 		print(threading.current_thread())
 		clock.tick(32)
@@ -107,8 +105,12 @@ def printSnake(cb):
 
 #metodo que solicida conexão e recebe uma posição vazia.
 def conectation():
+	negado = False
 	sock.connect((HOST, PORT))
-	sock.send("request\n".encode('UTF-8'))
+	data = pickle.dumps(("-", "solicitation"))
+	sock.send(data) #manda a solicitação para a posicao inicial da cobra
+
+	sock.close()
 	decision = sock.recv(1024)
 
 	if(clearString(decision) == "Denied"):
@@ -116,7 +118,10 @@ def conectation():
 	else:
 		position = int(decision)
 		cobra = Snake(position)
+		negado = True
 	sock.close()
+
+	return negado
 
 #metodo que captura o movimento da combra e envia para o servidor
 def move():
@@ -127,38 +132,43 @@ def move():
 			if e.type == QUIT:
 				sys.exit(0)
 			elif e.type == KEYDOWN:
-				if e.key == K_UP and cobras.getDir() != 0:
-						cobras.setDir(2)
+				if e.key == K_UP and cobra.getDir() != 0:
+						cobra.setDir(2)
 						print(2)
-				elif e.key == K_DOWN and cobras.getDir() != 2:
-						cobras.setDir(0)
+				elif e.key == K_DOWN and cobra.getDir() != 2:
+						cobra.setDir(0)
 						print(0)
-				elif e.key == K_LEFT and cobras.getDir() != 1:
-						cobras.setDir(3)
-				elif e.key == K_RIGHT and cobras.getDir() != 3:
-						cobras.setDir(1)
+				elif e.key == K_LEFT and cobra.getDir() != 1:
+						cobra.setDir(3)
+				elif e.key == K_RIGHT and cobra.getDir() != 3:
+						cobra.setDir(1)
 
-		i = cobras.getLength()-1
+		i = cobra.getLength()-1
 		while i >= 1:
-			cobras.xs[i] = cobras.xs[i-1]
-			cobras.ys[i] = cobras.ys[i-1]
+			cobra.xs[i] = cobra.xs[i-1]
+			cobra.ys[i] = cobra.ys[i-1]
 			i -= 1
-		if cobras.getDir() == 0:
-			cobras.ys[0] += 20
-		elif cobras.getDir() == 1:
-			cobras.xs[0] += 20
-		elif cobras.getDir() == 2:
-			cobras.ys[0] -= 20
-		elif cobras.getDir() == 3:
-			cobras.xs[0] -= 20
+		if cobra.getDir() == 0:
+			cobra.ys[0] += 20
+		elif cobra.getDir() == 1:
+			cobra.xs[0] += 20
+		elif cobra.getDir() == 2:
+			cobra.ys[0] -= 20
+		elif cobra.getDir() == 3:
+			cobra.xs[0] -= 20
 		lock.release()
 		time.sleep(0.1)
 
+		upSnakeAndGetList()
+
 		#MANDAR A COBRA ATUALIZADA PARA O SERVIDOR PARA QUE SEJA ATUALIZADA NA LISTA COM AS NOVAS POSICOES
-		sock.connect((HOST, PORT))
-		data = pickle.dumps(cobra)
-		sock.send(data+"") #mandar a cobra e uma mensagem indicando a atualização da cobra 
 
-		sock.close()
+if(!connectation()):
+	t = threading.Thread(target=printGameScreen)
+	t2 = threading.Thread(target=move)
 
-
+	t.start()
+	t2.start()	
+	
+	t2.join()
+	t.join()
