@@ -2,7 +2,8 @@ import pygame
 import random
 from random import randint
 import sys
-import socket, pickle
+from curses import KEY_RIGHT, KEY_LEFT, KEY_UP, KEY_DOWN
+import socket, pickle, threading, time
 from pygame.locals import *
 
 
@@ -61,8 +62,8 @@ lock = threading.Lock()
 
 #print(cobra.__sizeof__()) ##??
 
-#HOST = 'localhost'
-#PORT = 50007
+HOST = 'localhost'
+PORT = 13000
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Criação do Socket
 
 
@@ -106,7 +107,7 @@ def printSnake(cb):
 #metodo que solicida conexão e recebe uma posição vazia.
 def conectation():
 	negado = False
-	sock.connect((HOST, PORT))
+	sock.connect(('localhost', 13000))
 	data = pickle.dumps(("-", "solicitation"))
 	sock.send(data) #manda a solicitação para a posicao inicial da cobra
 
@@ -163,7 +164,7 @@ def move():
 
 		#MANDAR A COBRA ATUALIZADA PARA O SERVIDOR PARA QUE SEJA ATUALIZADA NA LISTA COM AS NOVAS POSICOES
 
-if(!connectation()):
+if not conectation:
 	t = threading.Thread(target=printGameScreen)
 	t2 = threading.Thread(target=move)
 
