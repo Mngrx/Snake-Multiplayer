@@ -91,7 +91,7 @@ def listenNewSnake():
 def printGameScreen():
 	while True:
 		#print(threading.current_thread())
-		clock.tick(32)
+		clock.tick(30)
 		s.fill((255, 255, 255))
 		#lock.acquire()
 		for c in cobras:	

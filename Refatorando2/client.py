@@ -14,23 +14,25 @@ pygame.init() #Inicialização do Pygame
 cobras = {}  # Dicionário de cobras
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Socket
 HOST = 'localhost'
-PORT = 13005
+PORT = 13007
 lock = threading.Lock()
 
 dest = (HOST, PORT)
 
 s.connect(dest)
-xs = [190, 190, 190, 190, 190]
-ys = [190, 170, 150, 130, 110]
+r = random.randint(100, 600)
+xs = [r, r-20, r-40, r-60, r-80, r-100, r-120, r-140, r-160]
+
+ys = [r, r, r, r, r, r, r, r, r]
 nome = "Jorge"
 
-cobra = [nome, 0, xs, ys,
+cobra = [nome, 1, xs, ys,
          (randint(0, 255), randint(0, 255), randint(0, 255))]
 
 cobras = {}
 
 clock = pygame.time.Clock()
-tela = pygame.display.set_mode((1000, 1000))
+tela = pygame.display.set_mode((800, 640))
 pygame.display.set_caption('Snake')
 img = pygame.Surface((20, 20))
 
@@ -39,9 +41,7 @@ def move():
   #while True:
   lock.acquire()
   for e in pygame.event.get():
-    if e.type == QUIT:
-      sys.exit(0)
-    elif e.type == KEYDOWN:
+    if e.type == KEYDOWN:
       if e.key == K_UP and cobra[1] != 0:
           cobra[1] = 2
           print(2)
@@ -66,12 +66,16 @@ def printSnake(cb):
 
 def printGameScreen():
   while True:
-    clock.tick(10)
+    clock.tick(12)
     tela.fill((255, 255, 255))
-    for c in cobras.values():	
+    lock.acquire()
+    time.sleep(0.01)
+    lista_cobras = cobras.values()
+    lock.release()
+    for c in lista_cobras:	
       t1 = threading.Thread(target=printSnake, args=([c]))
       t1.start()
-      t1.join()
+      #t1.join()
     pygame.display.update()
 
 
@@ -80,6 +84,8 @@ def printGameScreen():
 impressao = threading.Thread(target=printGameScreen)
 #movimento.start()
 impressao.start()
+
+
 #movimento.join()
 #impressao.join()
 
@@ -92,6 +98,8 @@ while 1:
   cobra_pickle = pickle.dumps(cobra)
   s.send(cobra_pickle)
   cobras_pickle = s.recv(4096)
+  if not cobras_pickle:
+    break
   cobras = pickle.loads(cobras_pickle)
   lock.release()
   print("---------------------------------------\n")
@@ -99,6 +107,9 @@ while 1:
   cobra = cobras[nome]
 
 s.close()
+pygame.quit()
 
-
-
+print("reiniciar jogo senhor?")
+i = input()
+print("Sua mãe!")
+impressao.join()
