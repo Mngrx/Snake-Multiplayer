@@ -52,7 +52,7 @@ def monitorarConexao(conn):
   print("asdasd")
 
   #del cobras[nome]
-  #conn.close()
+  conn.close()
   #threading._shutdown()
 
 def aux_collide(x1, x2, y1, y2, w1, w2, h1, h2):

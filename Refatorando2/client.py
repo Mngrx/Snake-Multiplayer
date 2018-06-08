@@ -24,7 +24,7 @@ r = random.randint(100, 600)
 xs = [r, r-20, r-40, r-60, r-80, r-100, r-120, r-140, r-160]
 
 ys = [r, r, r, r, r, r, r, r, r]
-nome = "Jorge"
+nome = "Pedro"
 
 cobra = [nome, 1, xs, ys,
          (randint(0, 255), randint(0, 255), randint(0, 255))]
